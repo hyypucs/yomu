@@ -30,6 +30,7 @@ data class HomeUiState(
     val translationSelectedId: String? = null,
     val translationPendingId: String? = null,
     val targetLanguage: TargetLanguage = TargetLanguage.ENGLISH,
+    val sourceLanguage: com.yomu.core.SourceLanguage = com.yomu.core.SourceLanguage.DEFAULT,
     /** The model switch a language choice is waiting on the reader to accept or decline (#338), or null. */
     val languageOffer: LanguageSwitch.Offer? = null,
     val setupDownloadBytes: Long = 0L,
@@ -57,7 +58,7 @@ data class HomeUiState(
     fun languageUnavailable(language: TargetLanguage): String? =
         ModelSlotSelection.languageUnavailable(language, deliverables[ModelType.LLM].orEmpty(), ::fits)
 
-    fun languageChipLabel(): String = "다국어 → ${targetLanguage.promptName}"
+    fun languageChipLabel(): String = "${sourceLanguage.promptName} → ${targetLanguage.promptName}"
 
     fun translationChipLabel(): String {
         val options = deliverables[ModelType.LLM].orEmpty()

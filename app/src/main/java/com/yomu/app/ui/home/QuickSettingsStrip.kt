@@ -21,14 +21,38 @@ import com.yomu.core.toFileSizeString
 internal fun QuickSettingsStrip(
     state: HomeUiState,
     onPickTranslationModel: (String) -> Unit,
-    onChooseLanguage: (TargetLanguage) -> Unit
+    onChooseLanguage: (TargetLanguage) -> Unit,
+    onChooseSourceLanguage: (com.yomu.core.SourceLanguage) -> Unit = {}
 ) {
     var open by rememberSaveable { mutableStateOf(false) }
+    var sourceOpen by rememberSaveable { mutableStateOf(false) }
     var languagesOpen by rememberSaveable { mutableStateOf(false) }
     var confirmSlow by rememberSaveable { mutableStateOf<String?>(null) }
     val statuses = state.models.associate { it.id to it.status }
     // One row always: the model chip shrinks and ellipsizes so the language chip never wraps (#273).
     Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+        Box {
+            AssistChip(
+                onClick = { sourceOpen = true },
+                label = { Text("원문: ${state.sourceLanguage.promptName}", maxLines = 1) },
+                trailingIcon = { Icon(Icons.Default.ArrowDropDown, contentDescription = null) }
+            )
+            DropdownMenu(expanded = sourceOpen, onDismissRequest = { sourceOpen = false }) {
+                com.yomu.core.SourceLanguage.entries.forEach { lang ->
+                    DropdownMenuItem(
+                        text = { Text(lang.promptName, style = MaterialTheme.typography.titleSmall) },
+                        onClick = {
+                            sourceOpen = false
+                            onChooseSourceLanguage(lang)
+                        },
+                        leadingIcon = {
+                            if (lang == state.sourceLanguage) Icon(Icons.Default.Check, contentDescription = "Selected")
+                            else Spacer(Modifier.size(24.dp))
+                        }
+                    )
+                }
+            }
+        }
         Box(Modifier.weight(1f, fill = false)) {
             AssistChip(
                 onClick = { open = true },

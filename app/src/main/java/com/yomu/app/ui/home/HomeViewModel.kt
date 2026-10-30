@@ -205,8 +205,14 @@ class HomeViewModel @Inject constructor(
         translationPendingId = slotSelection.pendingId(ModelType.LLM),
         // With the slots, since a download that never completes can return the language to English.
         targetLanguage = slotSelection.targetLanguage(),
+        sourceLanguage = com.yomu.app.translation.SourceLanguageStore(sharedPreferences).load(),
         setupDownloadBytes = slotSelection.downloadBytes(models.associate { it.id to it.status })
     )
+
+    fun chooseSourceLanguage(language: com.yomu.core.SourceLanguage) {
+        com.yomu.app.translation.SourceLanguageStore(sharedPreferences).save(language)
+        _uiState.update { it.copy(sourceLanguage = language) }
+    }
 
     fun prepareSetup() {
         if (setupJob?.isActive == true) return

@@ -45,8 +45,8 @@ class QuickSettingsTest {
 
     @Test
     fun `the language chip names the target language`() {
-        assertEquals("다국어 → English", state.languageChipLabel())
-        assertEquals("다국어 → Spanish", state.copy(targetLanguage = TargetLanguage.SPANISH).languageChipLabel())
+        assertEquals("Japanese → English", state.languageChipLabel())
+        assertEquals("Japanese → Spanish", state.copy(targetLanguage = TargetLanguage.SPANISH).languageChipLabel())
     }
 
     @Test
