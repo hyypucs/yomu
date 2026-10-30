@@ -75,7 +75,7 @@ class ModelManager @Inject constructor(
             ),
             ModelEntity(
                 id = Constants.MANGA_OCR_MODEL_ID,
-                name = "MangaOCR (Encoder + Decoder)",
+                name = "Baberu-OCR (다국어 만화 ONNX)",
                 type = ModelType.OCR,
                 fileName = Constants.OCR_ENCODER_MODEL,
                 fileSize = 22_279_960L,
