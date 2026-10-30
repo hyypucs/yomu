@@ -16,26 +16,26 @@ import androidx.compose.ui.unit.dp
 import com.yomu.app.ui.theme.*
 
 enum class SettingsSection(val route: String, val title: String, val description: String) {
-    Translation("settings/translation", "Translation", "How Yomu translates the Japanese into your language, on your device."),
-    NameGlossary("settings/name-glossary", "Name glossary", "Names Yomu always translates the same way."),
-    Pipeline("settings/pipeline", "Pipeline", "The models that find the speech bubbles and read the Japanese."),
-    Typesetting("settings/typesetting", "Typesetting", "How translated text is set inside the bubbles."),
-    Performance("settings/performance", "Performance", "What translation costs this phone, and how much the model may use."),
-    Appearance("settings/appearance", "Appearance", "How Yomu looks.")
+    Translation("settings/translation", "번역", "기기 내에서 텍스트를 원하는 언어로 번역하는 방식입니다."),
+    NameGlossary("settings/name-glossary", "이름/고유명사 사전", "항상 동일하게 번역할 고유명사 목록입니다."),
+    Pipeline("settings/pipeline", "파이프라인", "말풍선을 찾고 텍스트를 읽는 모델을 설정합니다."),
+    Typesetting("settings/typesetting", "조판 (식자)", "말풍선 안에 번역 텍스트를 배치하는 형태입니다."),
+    Performance("settings/performance", "성능", "번역 리소스 소모량 및 모델 메모리 사용량을 확인합니다."),
+    Appearance("settings/appearance", "화면 테마", "Yomu의 화면 디자인 및 테마를 설정합니다.")
 }
 
 @Composable
 fun SettingsScreen(onOpen: (SettingsSection) -> Unit) {
     val context = LocalContext.current
     val version = remember { context.packageManager.getPackageInfo(context.packageName, 0).versionName.orEmpty() }
-    SettingsPage("Settings") {
+    SettingsPage("설정") {
         PaperSurface(Modifier.fillMaxWidth()) {
             Column {
                 SettingsSection.entries.forEach { section ->
                     SettingsEntry(section.title, section.description, onClick = { onOpen(section) })
                 }
-                SettingsEntry("Providers", "Coming soon", enabled = false)
-                SettingsEntry("About", "Yomu v$version")
+                SettingsEntry("제공자", "출시 예정", enabled = false)
+                SettingsEntry("정보", "Yomu v$version")
             }
         }
     }
