@@ -36,6 +36,19 @@ internal fun looksLikeNonTranslation(text: String): Boolean {
 
 // ・ and ー stand in for ellipses and long vowels in otherwise English lines, so they are not residue.
 private val CJK = Regex("[぀-ヺヽ-ヿ㐀-䶿一-鿿豈-﫿ｦ-ﾟ]")
+private val HANGUL = Regex("[가-힣ㄱ-ㅎㅏ-ㅣ]")
+private val CHINESE_HANZI = Regex("[㐀-䶿一-鿿豈-﫿]")
+private val LATIN_LETTERS = Regex("[A-Za-z]")
+
+/**
+ * Validates whether [text] has recognizable characters for the given [sourceLanguage].
+ */
+fun String.isValidForSource(sourceLanguage: com.yomu.core.SourceLanguage): Boolean = when (sourceLanguage) {
+    com.yomu.core.SourceLanguage.JAPANESE -> hasJapaneseScript()
+    com.yomu.core.SourceLanguage.KOREAN -> HANGUL.containsMatchIn(this)
+    com.yomu.core.SourceLanguage.CHINESE -> CHINESE_HANZI.containsMatchIn(this)
+    com.yomu.core.SourceLanguage.ENGLISH -> LATIN_LETTERS.containsMatchIn(this)
+}
 
 /**
  * Why [text] cannot be a live translation, or null when it can: empty, a non-translation, or

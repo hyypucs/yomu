@@ -340,6 +340,16 @@ class TranslationEngineTest {
     }
 
     @Test
+    fun isValidForSource_acceptsCorrectScripts() {
+        assertTrue("안녕하세요".isValidForSource(com.yomu.core.SourceLanguage.KOREAN))
+        assertTrue("你好".isValidForSource(com.yomu.core.SourceLanguage.CHINESE))
+        assertTrue("Hello world".isValidForSource(com.yomu.core.SourceLanguage.ENGLISH))
+        assertTrue("こんにちは".isValidForSource(com.yomu.core.SourceLanguage.JAPANESE))
+        assertFalse("12345".isValidForSource(com.yomu.core.SourceLanguage.KOREAN))
+        assertFalse("...!?".isValidForSource(com.yomu.core.SourceLanguage.ENGLISH))
+    }
+
+    @Test
     fun hasJapaneseScript_rejectsReaderInterfaceTextAndBarePunctuation() {
         listOf("Sep15.2.50AN", "oloEdit", "00:37", "OK!", "!?", "……", "ー", "・・・").forEach { text ->
             assertFalse(text, text.hasJapaneseScript())
