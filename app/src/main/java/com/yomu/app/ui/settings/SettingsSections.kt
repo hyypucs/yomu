@@ -13,17 +13,19 @@ import androidx.compose.ui.unit.dp
 import com.yomu.app.db.entities.ModelType
 import com.yomu.app.detection.DetectionThresholdStore
 import com.yomu.app.ui.theme.*
+import com.yomu.core.SourceLanguage
 import com.yomu.core.TargetLanguage
 
 @Composable
 fun TranslationSettings(viewModel: SettingsViewModel, onBack: () -> Unit) {
     val state by viewModel.uiState.collectAsState()
     SettingsPage(SettingsSection.Translation.title, SettingsSection.Translation.description, onBack) {
+        SourceLanguagePanel(state.sourceLanguage, viewModel::setSourceLanguage)
         TargetLanguagePanel(state.targetLanguage, state::languageUnavailable, viewModel::setTargetLanguage)
         state.languageOffer?.let {
             LanguageOfferDialog(it, state.targetLanguage, viewModel::acceptLanguageOffer, viewModel::declineLanguageOffer)
         }
-        ModelSlot(state, viewModel, ModelType.LLM, "Model", "The on-device model that translates each bubble.")
+        ModelSlot(state, viewModel, ModelType.LLM, "번역 모델", "말풍선 속 텍스트를 기기 내에서 번역하는 AI 모델입니다.")
         state.recoveryWarning?.let { RecoveryWarning(it) }
         AdvancedGenerationPanel(
             generation = state.generation,
@@ -37,6 +39,37 @@ fun TranslationSettings(viewModel: SettingsViewModel, onBack: () -> Unit) {
 }
 
 @Composable
+private fun SourceLanguagePanel(
+    selected: SourceLanguage,
+    onChange: (SourceLanguage) -> Unit
+) {
+    PaperSurface(Modifier.fillMaxWidth()) {
+        Column(Modifier.padding(16.dp)) {
+            SettingRow("인식 언어 (원문)", "만화책 원본에서 읽고 인식할 언어입니다.") {
+                Column(Modifier.selectableGroup()) {
+                    SourceLanguage.entries.forEach { language ->
+                        Row(
+                            Modifier.fillMaxWidth().selectable(
+                                language == selected, role = Role.RadioButton, onClick = { onChange(language) }
+                            ),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            RadioButton(selected = language == selected, onClick = null)
+                            Column {
+                                Text(
+                                    language.displayName,
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
 private fun TargetLanguagePanel(
     selected: TargetLanguage,
     unavailable: (TargetLanguage) -> String?,
@@ -44,7 +77,7 @@ private fun TargetLanguagePanel(
 ) {
     PaperSurface(Modifier.fillMaxWidth()) {
         Column(Modifier.padding(16.dp)) {
-            SettingRow("Language", "The language pages are translated into. English only models write English alone.") {
+            SettingRow("번역 언어 (대상)", "페이지를 번역할 목적 언어입니다.") {
                 Column(Modifier.selectableGroup()) {
                     TargetLanguage.entries.forEach { language ->
                         val reason = unavailable(language)

@@ -15,10 +15,12 @@ import com.yomu.app.service.PageRecallStore
 import com.yomu.app.service.SlotDeliverable
 import com.yomu.app.translation.FitBudget
 import com.yomu.app.translation.ResourceLimit
+import com.yomu.app.translation.SourceLanguageStore
 import com.yomu.app.translation.TranslationModelSelection
 import com.yomu.core.Constants
 import com.yomu.core.GenerationBound
 import com.yomu.core.GenerationParams
+import com.yomu.core.SourceLanguage
 import com.yomu.core.TargetLanguage
 import com.yomu.pipeline.TranslationPipeline
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -34,10 +36,10 @@ import javax.inject.Inject
 
 data class SettingsUiState(
     val translationMode: String = "local",
+    val sourceLanguage: SourceLanguage = SourceLanguage.JAPANESE,
     val targetLanguage: TargetLanguage = TargetLanguage.ENGLISH,
     /** The model switch a language choice is waiting on the reader to accept or decline (#338), or null. */
     val languageOffer: LanguageSwitch.Offer? = null,
-    val sourceLanguage: String = "ja",
     val deliverables: Map<ModelType, List<SlotDeliverable>> = emptyMap(),
     val selectedIds: Map<ModelType, String> = emptyMap(),
     val pendingIds: Map<ModelType, String> = emptyMap(),
@@ -95,7 +97,8 @@ class SettingsViewModel @Inject constructor(
     private val modelSelection: TranslationModelSelection,
     private val slotSelection: ModelSlotSelection,
     private val modelManager: ModelManager,
-    private val translationPipeline: TranslationPipeline
+    private val translationPipeline: TranslationPipeline,
+    private val sourceLanguageStore: SourceLanguageStore
 ) : ViewModel() {
 
     private val detectionThresholdStore = DetectionThresholdStore(sharedPreferences)
@@ -111,7 +114,7 @@ class SettingsViewModel @Inject constructor(
         }
         _uiState.value = SettingsUiState(
             translationMode = sharedPreferences.getString(Constants.PREF_TRANSLATION_MODE, "local") ?: "local",
-            sourceLanguage = sharedPreferences.getString(Constants.PREF_SOURCE_LANGUAGE, "ja") ?: "ja",
+            sourceLanguage = sourceLanguageStore.load(),
             deliverables = ModelType.entries.associateWith(slotSelection::deliverables),
             deviceTotalMemBytes = modelManager.deviceTotalMemBytes(),
             fontSizeScale = sharedPreferences.getFloat(Constants.PREF_FONT_SIZE_SCALE, Constants.DEFAULT_FONT_SIZE_SCALE),
@@ -184,6 +187,11 @@ class SettingsViewModel @Inject constructor(
     fun resetDetectionThreshold() {
         detectionThresholdStore.reset()
         _uiState.update { it.copy(detectionThreshold = detectionThresholdStore.load()) }
+    }
+
+    fun setSourceLanguage(language: SourceLanguage) {
+        sourceLanguageStore.save(language)
+        _uiState.update { it.copy(sourceLanguage = language) }
     }
 
     fun setTargetLanguage(language: TargetLanguage) {
