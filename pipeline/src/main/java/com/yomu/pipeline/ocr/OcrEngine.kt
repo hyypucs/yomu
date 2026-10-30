@@ -1,6 +1,7 @@
 package com.yomu.pipeline.ocr
 
 import android.graphics.Bitmap
+import com.yomu.core.SourceLanguage
 import com.yomu.ml.OnnxRuntime
 import java.io.File
 
@@ -14,7 +15,7 @@ data class OcrResult(
     val unsure: Boolean get() = confidence < OcrEngine.MIN_CONFIDENCE
 }
 
-class OcrEngine(private val onnxRuntime: OnnxRuntime) {
+class OcrEngine(private val onnxRuntime: OnnxRuntime) : IOcrEngine {
 
     companion object {
         // Picked on 210 emulator reads of 18 OpenMantra pages (#366). Five of the six garbled
@@ -52,9 +53,11 @@ class OcrEngine(private val onnxRuntime: OnnxRuntime) {
         return encoderLoaded && decoderLoaded && vocabLoaded
     }
 
-    fun isModelLoaded(): Boolean = encoderLoaded && decoderLoaded && vocabLoaded
+    override fun isModelLoaded(): Boolean = encoderLoaded && decoderLoaded && vocabLoaded
 
-    fun extractText(region: Bitmap): OcrResult? {
+    fun extractText(region: Bitmap): OcrResult? = extractText(region, SourceLanguage.DEFAULT)
+
+    override fun extractText(region: Bitmap, sourceLanguage: SourceLanguage): OcrResult? {
         if (!isModelLoaded()) return null
         val encoderPath = encoderPath ?: return null
         val decoderPath = decoderPath ?: return null
