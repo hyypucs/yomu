@@ -262,7 +262,7 @@ class OverlayService : Service() {
         }
         return builder
             .setContentTitle("Yomu")
-            .setContentText("Tap the floating button to translate manga")
+            .setContentText("플로팅 버튼을 눌러 만화를 번역하세요")
             .setSmallIcon(android.R.drawable.ic_menu_edit)
             .setOngoing(true)
             .build()

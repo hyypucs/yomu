@@ -48,8 +48,8 @@ import com.yomu.core.TargetLanguage
 private const val SETTINGS_ROOT = "settings/root"
 
 sealed class Screen(val route: String, val title: String, val icon: ImageVector) {
-    data object Home : Screen("home", "Home", Icons.Default.Home)
-    data object Settings : Screen("settings", "Settings", Icons.Default.Settings)
+    data object Home : Screen("home", "홈", Icons.Default.Home)
+    data object Settings : Screen("settings", "설정", Icons.Default.Settings)
 }
 
 val bottomNavItems = listOf(Screen.Home, Screen.Settings)
@@ -80,7 +80,7 @@ fun AppNavigation(
     }
     if (state.modelsLoading || state.setupVisible) {
         ChromeContent(Modifier.safeDrawingPadding()) {
-            if (state.modelsLoading) PaperLoading("Getting Yomu ready…")
+            if (state.modelsLoading) PaperLoading("Yomu 준비 중…")
             else SetupScreen(state, viewModel)
         }
         return

@@ -38,10 +38,10 @@ fun HomeScreen(
     if (confirmClear) {
         AlertDialog(
             onDismissRequest = { confirmClear = false },
-            title = { Text("Clear recent translations?") },
-            text = { Text("This removes your saved translations from this device.") },
-            confirmButton = { TextButton(colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.onSurface), onClick = { confirmClear = false; viewModel.clearHistory() }) { Text("Clear") } },
-            dismissButton = { TextButton(colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.onSurface), onClick = { confirmClear = false }) { Text("Keep") } }
+            title = { Text("최근 번역 기록을 삭제할까요?") },
+            text = { Text("이 기기에서 저장된 번역 기록이 모두 삭제됩니다.") },
+            confirmButton = { TextButton(colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.onSurface), onClick = { confirmClear = false; viewModel.clearHistory() }) { Text("삭제") } },
+            dismissButton = { TextButton(colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.onSurface), onClick = { confirmClear = false }) { Text("유지") } }
         )
     }
     LazyColumn(
@@ -51,12 +51,12 @@ fun HomeScreen(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         item {
-            Text("Home", style = MaterialTheme.typography.headlineLarge)
+            Text("홈", style = MaterialTheme.typography.headlineLarge)
             Spacer(Modifier.height(16.dp))
             val label = when (readingStatus) {
-                ReadingStatus.On -> "Reading is ON"
-                ReadingStatus.Off -> "Reading is OFF"
-                ReadingStatus.NotReady -> "Finish setup to read"
+                ReadingStatus.On -> "번역 읽기 켜짐"
+                ReadingStatus.Off -> "번역 읽기 꺼짐"
+                ReadingStatus.NotReady -> "설정을 완료하고 읽기 시작"
             }
             val icon = when (readingStatus) {
                 ReadingStatus.On -> Icons.Default.Check
@@ -76,17 +76,17 @@ fun HomeScreen(
                     Column(Modifier.weight(1f)) {
                         Text(label, style = MaterialTheme.typography.headlineSmall)
                         Text(when (readingStatus) {
-                            ReadingStatus.On -> "Tap to turn off"
-                            ReadingStatus.Off -> "Tap to turn on"
-                            ReadingStatus.NotReady -> "Yomu needs a few things first"
+                            ReadingStatus.On -> "눌러서 끄기"
+                            ReadingStatus.Off -> "눌러서 켜기"
+                            ReadingStatus.NotReady -> "먼저 몇 가지 설정이 필요합니다"
                         }, style = MaterialTheme.typography.bodyMedium)
                     }
                 }
             }
             Spacer(Modifier.height(12.dp))
             Text(
-                if (readingStatus == ReadingStatus.On) "Keep reading in your manga app. Tap the floating button to translate a page."
-                else "Turn reading on, then browse manga in the app you already use.",
+                if (readingStatus == ReadingStatus.On) "만화 앱에서 계속 감상하세요. 플로팅 버튼을 누르면 페이지가 번역됩니다."
+                else "번역 기능을 켠 후 평소 사용하는 만화 앱에서 감상하세요.",
                 style = MaterialTheme.typography.bodyMedium
             )
             if (readingStatus != ReadingStatus.NotReady) {
@@ -96,40 +96,40 @@ fun HomeScreen(
         }
         state.confirmation?.let { message -> item { PaperSuccess(message, viewModel::dismissConfirmation) } }
         if (state.serviceError) item {
-            PaperError("Couldn't start reading. Try the reading control again.", viewModel::dismissServiceError)
+            PaperError("읽기를 시작할 수 없습니다. 다시 시도해 주세요.", viewModel::dismissServiceError)
         }
         if (readingStatus == ReadingStatus.NotReady) item {
             PaperSurface(Modifier.fillMaxWidth()) {
                 Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Text("Get ready to read", style = MaterialTheme.typography.titleLarge)
+                    Text("읽을 준비하기", style = MaterialTheme.typography.titleLarge)
                     Text(when (state.readiness) {
-                        Readiness.NeedsModels -> "Download the parts that find the speech bubbles, read the Japanese and translate it."
-                        Readiness.NeedsPermission -> "Allow Yomu to display translations over your manga app."
-                        Readiness.NeedsBoth -> "Download the parts that find the speech bubbles, read the Japanese and translate it, then allow Yomu to display over other apps."
-                        Readiness.Ready -> "Finish the short setup, then turn reading on."
+                        Readiness.NeedsModels -> "말풍선을 찾고 텍스트를 읽고 번역할 모델을 다운로드하세요."
+                        Readiness.NeedsPermission -> "만화 앱 위에 번역을 표시할 수 있도록 Yomu 권한을 허용해 주세요."
+                        Readiness.NeedsBoth -> "필요한 모델을 다운로드하고 다른 앱 위에 표시 권한을 허용해 주세요."
+                        Readiness.Ready -> "간단한 설정을 마치고 읽기를 시작하세요."
                     })
-                    PaperButton("Finish setup", viewModel::openSetup)
+                    PaperButton("설정 완료하기", viewModel::openSetup)
                 }
             }
         }
         item {
-            Text("${state.pagesTranslatedToday} ${if (state.pagesTranslatedToday == 1) "page" else "pages"} translated today", style = MaterialTheme.typography.bodySmall)
+            Text("오늘 번역한 페이지: ${state.pagesTranslatedToday}장", style = MaterialTheme.typography.bodySmall)
         }
         if (state.historyLoading || state.historyError || state.hasRead) {
             item {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("Recent", style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f))
-                    if (state.translations.isNotEmpty()) TextButton(colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.onSurface), onClick = { confirmClear = true }) { Text("Clear") }
+                    Text("최근 기록", style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f))
+                    if (state.translations.isNotEmpty()) TextButton(colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.onSurface), onClick = { confirmClear = true }) { Text("삭제") }
                 }
             }
             if (state.clearError) item {
-                PaperError("Couldn't clear Recent. Your translations are still saved.", viewModel::clearHistory)
+                PaperError("최근 기록을 지울 수 없습니다. 번역은 안전하게 저장되어 있습니다.", viewModel::clearHistory)
             }
             when {
-                state.historyLoading -> item { PaperLoading("Loading recent translations…") }
-                state.historyError -> item { PaperError("Couldn't load recent translations.", viewModel::loadRecentHistory) }
+                state.historyLoading -> item { PaperLoading("최근 번역 기록 불러오는 중…") }
+                state.historyError -> item { PaperError("최근 번역 기록을 불러올 수 없습니다.", viewModel::loadRecentHistory) }
                 state.translations.isEmpty() -> item {
-                    PaperEmpty("Your next translation will appear here.", "Back to reading") {
+                    PaperEmpty("다음 번역 결과가 여기에 나타납니다.", "읽기로 돌아가기") {
                         scope.launch { scroll.animateScrollToItem(0) }
                     }
                 }
@@ -142,12 +142,12 @@ fun HomeScreen(
                                 val translatedAt = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT).format(Date(translation.createdAt))
                                 val language = TargetLanguage.fromCode(translation.targetLanguage)?.promptName
                                 Text(listOfNotNull(translatedAt, language).joinToString(" · "), style = MaterialTheme.typography.bodySmall)
-                                Text(if (expanded) "Show less" else "Read translation", style = MaterialTheme.typography.labelMedium)
+                                Text(if (expanded) "접기" else "번역 읽기", style = MaterialTheme.typography.labelMedium)
                             }
                         }
                     }
                     if (state.translations.size > 3) item {
-                        PaperButton(if (showAll) "Show recent only" else "Show all translations", { showAll = !showAll })
+                        PaperButton(if (showAll) "최근 항목만 보기" else "모든 번역 보기", { showAll = !showAll })
                     }
                 }
             }
