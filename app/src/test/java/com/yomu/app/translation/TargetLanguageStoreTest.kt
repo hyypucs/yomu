@@ -40,7 +40,7 @@ class TargetLanguageStoreTest {
 
     @Test
     fun `an unknown or wrongly typed stored value loads English`() {
-        prefs.values[Constants.PREF_TARGET_LANGUAGE] = "ja"
+        prefs.values[Constants.PREF_TARGET_LANGUAGE] = "unsupported_xyz"
         assertEquals(TargetLanguage.ENGLISH, store.load())
 
         prefs.values[Constants.PREF_TARGET_LANGUAGE] = 3
