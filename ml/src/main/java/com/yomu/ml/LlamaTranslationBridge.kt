@@ -216,8 +216,12 @@ class LlamaTranslationBridge(
     private fun modelCardPrompt(target: String): String =
         "Translate the following Japanese text into English.\n\n$target"
 
-    private fun translationOnlyPrompt(target: String, language: TargetLanguage): String = buildString {
-        appendLine("Translate the target Japanese manga text into natural ${language.promptName}. Return only the translation.")
+    private fun translationOnlyPrompt(
+        target: String,
+        targetLanguage: TargetLanguage,
+        sourceLanguage: com.yomu.core.SourceLanguage = com.yomu.core.SourceLanguage.DEFAULT
+    ): String = buildString {
+        appendLine("Translate the target ${sourceLanguage.promptName} manga text into natural ${targetLanguage.promptName}. Return only the translation.")
         appendLine("No introductions, explanations, labels, or added quotes. Preserve meaning and tone.")
         appendLine("Target text (translate this only):")
         append(target)
@@ -230,7 +234,7 @@ class LlamaTranslationBridge(
 
     private fun buildBatchPrompt(page: TranslatablePage): String = buildString {
         appendLine(
-            "Translate each Japanese line to ${page.targetLanguage.promptName}. Keep the [id] tag before each line. " +
+            "Translate each ${page.sourceLanguage.promptName} line to ${page.targetLanguage.promptName}. Keep the [id] tag before each line. " +
                 "Panels are separated by ---."
         )
         page.panels.forEachIndexed { index, panel ->
