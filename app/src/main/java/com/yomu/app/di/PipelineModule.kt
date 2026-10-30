@@ -44,8 +44,8 @@ object PipelineModule {
 
     @Provides
     @Singleton
-    fun provideOcrEngine(onnxRuntime: OnnxRuntime): OcrEngine {
-        return OcrEngine(onnxRuntime)
+    fun provideOcrEngine(onnxRuntime: OnnxRuntime): com.yomu.pipeline.ocr.IOcrEngine {
+        return com.yomu.pipeline.ocr.CompositeOcrEngine(OcrEngine(onnxRuntime))
     }
 
     @Provides
@@ -108,7 +108,7 @@ object PipelineModule {
     @Singleton
     fun provideTranslationPipeline(
         bubbleDetector: BubbleDetector,
-        ocrEngine: OcrEngine,
+        ocrEngine: com.yomu.pipeline.ocr.IOcrEngine,
         contextAssembler: ContextAssembler,
         translationEngine: TranslationEngine,
         typesetter: Typesetter

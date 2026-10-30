@@ -486,6 +486,7 @@ class OverlayService : Service() {
                 },
                 ignoredRegions = ignored.map { RectF(it.left, it.top, it.right, it.bottom) },
                 targetLanguage = settings.targetLanguage,
+                sourceLanguage = com.yomu.app.translation.SourceLanguageStore(sharedPreferences).load(),
                 glossary = settings.glossary
             )
             if (result != null) lastPage = PageRecord(bitmap, result, settings, recalled = false)
