@@ -59,7 +59,7 @@ class OverlayLanguageSwitch(
         }
     }
 
-    private fun chipText(): String = "Japanese → ${targetLanguage().promptName}"
+    private fun chipText(): String = "다국어 → ${targetLanguage().promptName}"
 
     private fun languageOptions(): RadioGroup = RadioGroup(context).apply {
         visibility = View.GONE

@@ -57,7 +57,7 @@ data class HomeUiState(
     fun languageUnavailable(language: TargetLanguage): String? =
         ModelSlotSelection.languageUnavailable(language, deliverables[ModelType.LLM].orEmpty(), ::fits)
 
-    fun languageChipLabel(): String = "Japanese → ${targetLanguage.promptName}"
+    fun languageChipLabel(): String = "다국어 → ${targetLanguage.promptName}"
 
     fun translationChipLabel(): String {
         val options = deliverables[ModelType.LLM].orEmpty()

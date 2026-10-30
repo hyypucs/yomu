@@ -83,7 +83,7 @@ class QuickSettingsPopupTest {
         val languages = spanish.parent as View
         assertEquals(View.GONE, languages.visibility)
 
-        checkNotNull(content.withText("Japanese → English")).performClick()
+        checkNotNull(content.withText("다국어 → English")).performClick()
         assertEquals(View.VISIBLE, languages.visibility)
         spanish.performClick()
 

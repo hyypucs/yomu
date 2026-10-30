@@ -43,9 +43,9 @@ class HomeViewModel @Inject constructor(
         const val SETUP_COMPLETE = "reading_setup_complete"
         const val HAS_READ = "has_read"
         val DOWNLOAD_LABELS = mapOf(
-            ModelType.DETECTION to "Finding speech bubbles",
-            ModelType.OCR to "Reading Japanese",
-            ModelType.LLM to "Translating into English"
+            ModelType.DETECTION to "말풍선 검출",
+            ModelType.OCR to "다국어 텍스트 인식",
+            ModelType.LLM to "다국어 번역"
         )
     }
 
