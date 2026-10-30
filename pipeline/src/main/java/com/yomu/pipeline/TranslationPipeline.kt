@@ -4,15 +4,18 @@ import android.graphics.Bitmap
 import android.graphics.RectF
 import android.util.Log
 import com.yomu.core.GlossaryEntry
+import com.yomu.core.SourceLanguage
 import com.yomu.core.TargetLanguage
 import com.yomu.pipeline.bubble.BubbleDetector
 import com.yomu.pipeline.bubble.bubbleRenderBoxes
 import com.yomu.pipeline.bubble.centeredOutside
 import com.yomu.pipeline.context.ContextAssembler
+import com.yomu.pipeline.ocr.CompositeOcrEngine
+import com.yomu.pipeline.ocr.IOcrEngine
 import com.yomu.pipeline.ocr.OcrEngine
 import com.yomu.pipeline.ocr.OcrResult
 import com.yomu.pipeline.translation.TranslationEngine
-import com.yomu.pipeline.translation.hasJapaneseScript
+import com.yomu.pipeline.translation.isValidForSource
 import com.yomu.pipeline.typesetting.TypesetBubble
 import com.yomu.pipeline.typesetting.Typesetter
 import kotlin.coroutines.coroutineContext
@@ -32,7 +35,7 @@ data class ModelPaths(
 
 class TranslationPipeline(
     private val bubbleDetector: BubbleDetector,
-    private val ocrEngine: OcrEngine,
+    private val ocrEngine: IOcrEngine,
     private val contextAssembler: ContextAssembler,
     private val translationEngine: TranslationEngine,
     private val typesetter: Typesetter
@@ -75,11 +78,11 @@ class TranslationPipeline(
 
     suspend fun loadModels(paths: ModelPaths): Boolean = withContext(Dispatchers.IO) {
         val bubbleLoaded = bubbleDetector.loadModel(paths.bubbleDetectionPath)
-        val ocrLoaded = ocrEngine.loadModel(
-            paths.ocrEncoderPath,
-            paths.ocrDecoderPath,
-            paths.ocrVocabPath
-        )
+        val ocrLoaded = when (val engine = ocrEngine) {
+            is OcrEngine -> engine.loadModel(paths.ocrEncoderPath, paths.ocrDecoderPath, paths.ocrVocabPath)
+            is CompositeOcrEngine -> engine.loadModel(paths.ocrEncoderPath, paths.ocrDecoderPath, paths.ocrVocabPath)
+            else -> true
+        }
         bubbleLoaded && ocrLoaded
     }
 
@@ -100,13 +103,20 @@ class TranslationPipeline(
         onBubble: ((TypesetBubble) -> Unit)? = null,
         ignoredRegions: List<RectF> = emptyList(),
         targetLanguage: TargetLanguage,
+        sourceLanguage: SourceLanguage = SourceLanguage.DEFAULT,
         glossary: List<GlossaryEntry> = emptyList()
-    ): PipelineResult? = inference.withLock { runPage(bitmap, callback, onOcrComplete, onBubble, ignoredRegions, targetLanguage, glossary) }
+    ): PipelineResult? = inference.withLock { runPage(bitmap, callback, onOcrComplete, onBubble, ignoredRegions, targetLanguage, sourceLanguage, glossary) }
 
     /** Releases the detector after any active page finishes using its native session. */
     suspend fun unloadDetection() = inference.withLock { bubbleDetector.release() }
 
-    suspend fun unloadOcr() = inference.withLock { ocrEngine.release() }
+    suspend fun unloadOcr() = inference.withLock {
+        when (val engine = ocrEngine) {
+            is OcrEngine -> engine.release()
+            is CompositeOcrEngine -> engine.release()
+            else -> {}
+        }
+    }
 
     suspend fun unloadTranslation() = inference.withLock { translationEngine.close() }
 
@@ -121,6 +131,7 @@ class TranslationPipeline(
         onBubble: ((TypesetBubble) -> Unit)?,
         ignoredRegions: List<RectF>,
         targetLanguage: TargetLanguage,
+        sourceLanguage: SourceLanguage = SourceLanguage.DEFAULT,
         glossary: List<GlossaryEntry>
     ): PipelineResult? {
         val startTime = System.currentTimeMillis()
@@ -192,9 +203,9 @@ class TranslationPipeline(
                     cropBounds.height
                 )
 
-                val result = ocrEngine.extractText(bubbleBitmap)
+                val result = ocrEngine.extractText(bubbleBitmap, sourceLanguage)
                 coroutineContext.ensureActive()
-                if (result != null && result.text.hasJapaneseScript()) {
+                if (result != null && result.text.isValidForSource(sourceLanguage)) {
                     reads[bubble.id] = result
                     // A garbled read comes back as confident wrong English, so its bubble keeps its art (#366).
                     if (result.unsure) {
@@ -288,7 +299,11 @@ class TranslationPipeline(
 
     fun close() {
         bubbleDetector.release()
-        ocrEngine.release()
+        when (val engine = ocrEngine) {
+            is OcrEngine -> engine.release()
+            is CompositeOcrEngine -> engine.release()
+            else -> {}
+        }
         translationEngine.close()
     }
 }
